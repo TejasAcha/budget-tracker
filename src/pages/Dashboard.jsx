@@ -1,10 +1,66 @@
 import React from 'react'
-import { FaHome } from 'react-icons/fa'; 
-import { FaRegCalendarAlt } from 'react-icons/fa';
-import { BsJournalText } from 'react-icons/bs';
-import Sidebar from '../components/Sidebar';
+import { useOutletContext } from 'react-router-dom';
+import { PieChart, Pie, Tooltip, Legend, Cell, ResponsiveContainer } from "recharts";
+
 
 const Dashboard = () => {
+    const { expenseList, setExpenseList } = useOutletContext();
+    const today = new Date()
+    const currentMonth = today.getMonth()
+    const currentYear = today.getFullYear()
+    const categoryTotals = {}
+    const chartData = []
+    let totalSpent = 0
+    let monthlySpent = 0
+    const monthlyBudget = 20000
+    let balance = 0
+    expenseList.forEach(element => {
+        totalSpent += Number(element.amount)
+    });
+    const monthlyExpenseList = expenseList.filter((row) => {
+        const dateString = row.date
+        const dateObject = new Date(dateString);
+        const year = dateObject.getFullYear()
+        const month = dateObject.getMonth()
+
+        if (year === currentYear && month === currentMonth) {
+            
+            return true
+        }
+    })
+    
+    monthlyExpenseList.forEach(element => {
+        monthlySpent += Number(element.amount)
+    });
+
+    balance = monthlyBudget - monthlySpent
+
+    monthlyExpenseList.forEach(element=>{
+        if (categoryTotals[element.category] === undefined ) {
+            categoryTotals[element.category] = 0
+        }
+        categoryTotals[element.category] += Number(element.amount)
+    })
+
+    console.log(categoryTotals);
+
+    // categoryTotals.forEach(element => {
+    //     chartData.push({
+    //         categoryName: element,
+    //         amount: categoryTotals[element]
+    //     })
+    // })
+
+    Object.keys(categoryTotals).forEach(key => {
+        chartData.push({
+            name: key,
+            value: categoryTotals[key]
+        })
+    })
+
+    const COLORS = ["#3b82f6", "#22c55e"];
+    
+    
   return (
 
       <main className='flex-1 p-6'>
@@ -15,21 +71,21 @@ const Dashboard = () => {
                 shadow
                 p-4'>
                 <h3 className='text-gray-500 text-sm'>Monthly Budget</h3>
-                <p className='text-2xl font-bold'>20,000</p>
+                <p className='text-2xl font-bold'>{monthlyBudget}</p>
             </div>
             <div className='bg-white
                 rounded-xl
                 shadow
                 p-4'>
                 <h3 className='text-gray-500 text-sm'>Spent Overall</h3>
-                <p className='text-2xl font-bold'>10,000</p>
+                <p className='text-2xl font-bold'>{monthlySpent}</p>
             </div>
             <div className='bg-white
                 rounded-xl
                 shadow
                 p-4'>
                 <h3 className='text-gray-500 text-sm'>Balance</h3>
-                <p className='text-2xl font-bold'>10,000</p>
+                <p className='text-2xl font-bold'>{balance}</p>
             </div>
         </div>
         <div className='bg-white
@@ -43,8 +99,32 @@ const Dashboard = () => {
             items-center
             justify-center
             text-gray-400'>
-                Chart will be added here
-        </div>
+                
+
+                {/* <div className="bg-white rounded-xl shadow p-6"> */}
+                <h2 className="text-lg font-semibold mb-4">Expenses by Category</h2>
+                <ResponsiveContainer width="100%" height="85%">
+                <PieChart>
+                    <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    dataKey="value"
+                    
+                    >
+                    {chartData.map((_, index) => (
+                        <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                    </Pie>
+
+                    <Tooltip />
+                    <Legend />
+                </PieChart>
+                </ResponsiveContainer>
+               
+                {/* </div> */}
+        </div>   
         <div className='bg-white
             rounded-xl
             shadow

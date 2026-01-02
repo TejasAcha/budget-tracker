@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import ExpenseModal from './ExpenseModal';
 import Sidebar from '../components/Sidebar';
+import { useOutletContext } from 'react-router-dom';
 
 const ExpensesPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -13,7 +14,8 @@ const ExpensesPage = () => {
         description:'',
         date:''
     })
-    const [expenseList, setExpenseList] = useState([]);
+    // const [expenseList, setExpenseList] = useState([]);
+    const { expenseList, setExpenseList } = useOutletContext();
     const [editForm, setEditForm] = useState({
         amount: '',
         category: '',
