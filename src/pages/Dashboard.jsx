@@ -1,6 +1,6 @@
 import React from 'react'
 import { useOutletContext } from 'react-router-dom';
-import { PieChart, Pie, Tooltip, Legend, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Tooltip, Legend, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis } from "recharts";
 
 
 const Dashboard = () => {
@@ -10,6 +10,13 @@ const Dashboard = () => {
     const currentYear = today.getFullYear()
     const categoryTotals = {}
     const chartData = []
+    const lineChartData = []
+    const dailyTotals = {}
+    const recentTransactions = [...expenseList].sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateB - dateA; // Sort in descending order
+    }).slice(0, 5); // Get the top 5 recent transactions
     let totalSpent = 0
     let monthlySpent = 0
     const monthlyBudget = 20000
@@ -58,6 +65,25 @@ const Dashboard = () => {
         })
     })
 
+    monthlyExpenseList.forEach(element=>{
+        const dateString = element.date
+        const dateObject = new Date(dateString);
+        const day = dateObject.getDate()
+
+        if (dailyTotals[day] === undefined ) {
+            dailyTotals[day] = 0
+        }
+        dailyTotals[day] += Number(element.amount)
+    })
+
+    Object.keys(dailyTotals).sort((a, b) => a - b).forEach(key => {
+        lineChartData.push({
+            date: `${key} ${new Date().toLocaleString("en-IN", { month: "short" })}`,
+            amount: dailyTotals[key]
+        })
+    })
+
+
     const COLORS = ["#3b82f6", "#22c55e"];
     
     
@@ -88,43 +114,54 @@ const Dashboard = () => {
                 <p className='text-2xl font-bold'>{balance}</p>
             </div>
         </div>
-        <div className='bg-white
-            rounded-xl
-            shadow
-            p-6
-            mb-6
-            h-64 
-            lg:h-80
-            flex
-            items-center
-            justify-center
-            text-gray-400'>
+        <div className='bg-white rounded-xl shadow p-6 mb-6 min-h-[35vh]
+            grid grid-cols-1 lg:grid-cols-2 gap-6
+            '>
                 
-
+                <div className="bg-white p-6 rounded-xl shadow h-80">
                 {/* <div className="bg-white rounded-xl shadow p-6"> */}
-                <h2 className="text-lg font-semibold mb-4">Expenses by Category</h2>
-                <ResponsiveContainer width="100%" height="85%">
-                <PieChart>
-                    <Pie
-                    data={chartData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    dataKey="value"
+                <h2 className="text-lg font-semibold mb-4 text-gray-400">Expenses by Category</h2>
+                <div className="h-56">
+                <ResponsiveContainer  width="100%" height="100%">
+                    {chartData.length === 0 ? <h2 className='text-center py-10 text-gray-400'>No Data to display</h2> :
+                    <PieChart>
+                        <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        dataKey="value"
                     
-                    >
-                    {chartData.map((_, index) => (
-                        <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                    </Pie>
+                        >
+                        {chartData.map((_, index) => (
+                            <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                        </Pie>
 
-                    <Tooltip />
-                    <Legend />
-                </PieChart>
+                        <Tooltip />
+                        <Legend wrapperStyle={{ fontSize: 12 }}/>
+                    </PieChart>
+                }
                 </ResponsiveContainer>
-               
+                </div>
+                </div>
+                <div className="bg-white p-6 rounded-xl shadow h-80">
+                <h2 className="text-lg font-semibold mb-4 text-gray-400">Expenses by Date</h2>
+                <ResponsiveContainer width="100%" height="100%">
+                    {lineChartData.length === 0 ? <h2 className='text-center py-10 text-gray-400'>No Data to display</h2> :
+                    <LineChart  data={lineChartData}>
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Line type="monotone" dataKey="amount" stroke="#3b82f6" strokeWidth={2} />
+                    
+                    </LineChart>
+}
+                </ResponsiveContainer>
+               </div>
                 {/* </div> */}
         </div>   
+            
         <div className='bg-white
             rounded-xl
             shadow
@@ -136,16 +173,19 @@ const Dashboard = () => {
                         <span>Amount</span>
                         <span>Date</span>
                     </div>
-                    <div className = 'grid grid-cols-3 gap-4 text-sm'>
-                        <span>Food</span>
-                        <span>₹250</span>
-                        <span>12 Sep</span>
-                    </div>
-                    <div className = 'grid grid-cols-3 gap-4 text-sm'>
-                        <span>Food</span>
-                        <span>₹250</span>
-                        <span>12 Sep</span>
-                    </div>
+                    {recentTransactions.length === 0 ? <h2 className='text-center py-10 text-gray-400'>No Recent Transactions</h2> :
+                    recentTransactions.map((row)=>{
+                        return <div key={row.id} className='grid grid-cols-3 gap-4
+                        text-sm'>
+                            
+                                <span>{row.category}</span>
+                                <span className='font-semibold text-red-600'>{row.amount}</span>
+                                <span>{row.date}</span>
+                                
+                        </div>
+                    })
+                    }
+                    
                 </div>
         </div>
       </main>
