@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { v4 as uuidv4 } from 'uuid';
 import ExpenseModal from './ExpenseModal';
 import Sidebar from '../components/Sidebar';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useLocation } from 'react-router-dom';
 
 const ExpensesPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -23,6 +23,19 @@ const ExpensesPage = () => {
         date:'',
         id:null
     })
+    const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    // const [filteredExpenseList, setFilteredExpenseList] = useState(expenseList);
+    const [selectedCategory, setSelectedCategory] = useState('All Categories');
+    const [selectedMonth, setSelectedMonth] = useState('All');
+    const [selectedDate, setSelectedDate] = useState('All Dates');
+    const [searchDescription, setSearchDescription] = useState('');
+    const uniqueDates = [...new Set(expenseList.map(e => e.date))];
+    const location = useLocation();
+    useEffect(() => {
+        if (location.state && location.state.filterCategory) {
+            setSelectedCategory(location.state.filterCategory);
+        }
+    }, [location.state]);
     const handleExpenseForm = (e) => {
         setForm({...form,[e.target.name]:e.target.value})
     }
@@ -89,6 +102,52 @@ const ExpensesPage = () => {
         setIsEditMode(false)
     }
 
+    const filteredExpenseList = useMemo(() => {
+        // apply filters immediately using current/new values
+        let filtered = expenseList || [];
+
+        if (selectedCategory && selectedCategory !== 'All Categories') {
+            filtered = filtered.filter(row => row.category === selectedCategory)
+        }
+
+        if (selectedMonth && selectedMonth !== 'All') {
+            filtered = filtered.filter(row => {
+                if (!row.date) return false
+                const dateObject = new Date(row.date);
+                const monthShort = dateObject.toLocaleString('en-IN', { month: 'short' }).toUpperCase()
+                return monthShort === selectedMonth.toUpperCase()
+            })
+        }
+
+        if(selectedDate && selectedDate !== 'All Dates'){
+            filtered = filtered.filter(row => row.date === selectedDate)
+        }
+
+        if (searchDescription && searchDescription !== '') {
+            filtered = filtered.filter(row => row.description.toLowerCase().includes(searchDescription.toLowerCase()))
+        }
+
+        return filtered
+    }, [expenseList, selectedCategory, selectedMonth, selectedDate, searchDescription]);
+
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target
+        // compute new selected values (because setState is async)
+        
+        if (name === 'Search') setSearchDescription(value)
+        if (name === 'category') setSelectedCategory(value)
+        if (name === 'month') setSelectedMonth(value)
+        if (name === 'date') setSelectedDate(value)
+    }
+
+    const onClearFilter = () => {
+        setSelectedCategory('All Categories')
+        setSelectedMonth('All')
+        setSelectedDate('All Dates')
+        setSearchDescription('')
+    }
+
+    
     useEffect(() => {
             console.log(expenseList); 
             console.log(editForm);
@@ -112,20 +171,37 @@ const ExpensesPage = () => {
             p-4 mb-6
             flex flex-col md:flex-row gap-4'>
                 <input type="text" name="Search" id="" className='flex-1 border rounded-lg px-3 py-2 focus:ring 
-                focus:ring-blue-300 outline-none' />
-                <select name="category" id="" className='border rounded-lg px-3 py-2 bg-white
-                focus:ring focus:ring-blue-300 outline-none'>
-                    <option value="All Catogories"> All Catogories</option>
+                focus:ring-blue-300 outline-none' value={searchDescription} onChange={handleFilterChange} />
+                <select name="category" id="" value={selectedCategory} className='border rounded-lg px-3 py-2 bg-white
+                focus:ring focus:ring-blue-300 outline-none' onChange={handleFilterChange}>
+                    <option value="All Categories"> All Categories</option>
                     <option value="Food">Food</option>
                     <option value="Outing">Outing</option>
                 </select>
-                <select name="date" id="" className='border rounded-lg px-3 py-2 focus:ring focus:ring-blue-300 outline-none'>
-                    <option value="1-10-2025">1-10-2025</option>
-                    <option value="1-10-2025">1-10-2025</option>
-                    <option value="1-10-2025">1-10-2025</option>
+                <select name="month" id="" value={selectedMonth} className='border rounded-lg px-3 py-2 bg-white
+                focus:ring focus:ring-blue-300 outline-none' onChange={handleFilterChange}>
+                    <option value="All"> All</option>
+                    {months.map((month)=>{
+                        return <option value={month} key={month}>{month} 2026</option>
+                    })}
                 </select>
+                <select name="date" id=""  value={selectedDate} className='border rounded-lg px-3 py-2 focus:ring focus:ring-blue-300 
+                outline-none' onChange={handleFilterChange}>
+                    <option value="All Dates">All Dates</option>
+                    {uniqueDates.map((date)=>{
+                        return <option value={date} key={date}>{date}</option>
+                    })}
+                </select>
+                <button className='flex items-center gap-2
+                px-4 py-2 rounded-lg
+                bg-blue-600 text-white
+                hover:bg-blue-700'
+                onClick={onClearFilter}
+                >
+                Clear
+                </button>
             </div>
-        <div className='bg-white rounded-xl shadow p-4'>
+        <div className='bg-white rounded-xl shadow p-4 overflow-x-auto'>
             <div className='grid grid-cols-5 gap-4
             text-sm text-gray-500 font-medium
             pb-3 border-b'>
@@ -136,8 +212,8 @@ const ExpensesPage = () => {
                 <span>Actions</span>
             </div>
             {
-            expenseList.length === 0 ? <h2 className='text-center py-10 text-gray-400'>No Expenses added yet</h2> :
-            expenseList.map((row)=>{
+            filteredExpenseList.length === 0 ? <h2 className='text-center py-10 text-gray-400'>No Expenses added yet</h2> :
+            filteredExpenseList.map((row)=>{
             return <div key={row.id} className='grid grid-cols-5 gap-4 items-center
             py-3 border-b last:border-none
             text-sm'>
@@ -145,7 +221,7 @@ const ExpensesPage = () => {
                     <span>{row.category}</span>
                     <span>{row.description}</span>
                     <span>{row.date}</span>
-                    <span className='font-semibold text-red-600'>{row.amount}</span>
+                    <span className='font-semibold text-red-600'>₹{Number(row.amount).toLocaleString('en-IN')}</span>
                     <span className='flex gap-3'>
                         <button className='text-blue-600 hover:underline' onClick={() => editExpenseForm(row.id)}>Edit</button> | 
                         <button className='text-red-600 hover:underline' onClick={() => deleteExpense(row.id)}>Delete</button>

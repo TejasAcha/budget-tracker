@@ -1,5 +1,5 @@
 import React from 'react'
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Tooltip, Legend, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis } from "recharts";
 
 
@@ -12,6 +12,12 @@ const Dashboard = () => {
     const chartData = []
     const lineChartData = []
     const dailyTotals = {}
+    const navigate = useNavigate();
+
+    const handlePieClick = (data, index) => {
+        const categoryName = data.name;
+        navigate('/expenses', { state: { filterCategory: categoryName } });
+      }
     const recentTransactions = [...expenseList].sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
@@ -131,7 +137,7 @@ const Dashboard = () => {
                         cy="50%"
                         outerRadius={100}
                         dataKey="value"
-                    
+                        onClick={handlePieClick}
                         >
                         {chartData.map((_, index) => (
                             <Cell key={index} fill={COLORS[index % COLORS.length]} />
