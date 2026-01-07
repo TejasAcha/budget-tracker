@@ -35,6 +35,12 @@ const ExpensesPage = () => {
         if (location.state && location.state.filterCategory) {
             setSelectedCategory(location.state.filterCategory);
         }
+        if (location.state && location.state.filterMonth) {
+            setSelectedMonth(location.state.filterMonth);
+        }
+        if (location.state && location.state.filterDate) {
+            setSelectedDate(location.state.filterDate);
+        }   
     }, [location.state]);
     const handleExpenseForm = (e) => {
         setForm({...form,[e.target.name]:e.target.value})
