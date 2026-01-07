@@ -1,4 +1,5 @@
 import React from 'react'
+import { EXPENSE_CATEGORIES } from './ExpensesPage'
 
 const ExpenseModal = ({form, onAddExpense, onCancelButton, handleExpenseForm, modal}) => {
   return (
@@ -27,8 +28,9 @@ const ExpenseModal = ({form, onAddExpense, onCancelButton, handleExpenseForm, mo
                     focus:ring focus:ring-blue-300
                     outline-none' onChange={handleExpenseForm} value={form.category}>
                         <option value="All Catogories"> All Catogories</option>
-                        <option value="Food">Food</option>
-                        <option value="Outing">Outing</option>
+                        {EXPENSE_CATEGORIES.map((category)=>{
+                            return <option value={category} key={category}>{category}</option>
+                        })}
                     </select>
                     <label className='text-sm font-medium text-gray-700'>Description</label>
                     <input type="text" className='border rounded-lg px-3 py-2

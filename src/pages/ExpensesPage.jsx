@@ -5,6 +5,18 @@ import ExpenseModal from './ExpenseModal';
 import Sidebar from '../components/Sidebar';
 import { useOutletContext, useLocation } from 'react-router-dom';
 
+export const EXPENSE_CATEGORIES = [
+  "Food",
+  "Transport",
+  "Shopping",
+  "Bills",
+  "Health",
+  "Entertainment",
+  "Education",
+  "Work",
+  "Others"
+];
+
 const ExpensesPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isEditMode, setIsEditMode] = useState(false)
@@ -23,6 +35,7 @@ const ExpensesPage = () => {
         date:'',
         id:null
     })
+    
     const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
     // const [filteredExpenseList, setFilteredExpenseList] = useState(expenseList);
     const [selectedCategory, setSelectedCategory] = useState('All Categories');
@@ -181,8 +194,9 @@ const ExpensesPage = () => {
                 <select name="category" id="" value={selectedCategory} className='border rounded-lg px-3 py-2 bg-white
                 focus:ring focus:ring-blue-300 outline-none' onChange={handleFilterChange}>
                     <option value="All Categories"> All Categories</option>
-                    <option value="Food">Food</option>
-                    <option value="Outing">Outing</option>
+                    {EXPENSE_CATEGORIES.map((category)=>{
+                        return <option value={category} key={category}>{category}</option>
+                    })}
                 </select>
                 <select name="month" id="" value={selectedMonth} className='border rounded-lg px-3 py-2 bg-white
                 focus:ring focus:ring-blue-300 outline-none' onChange={handleFilterChange}>
