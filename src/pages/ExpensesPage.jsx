@@ -222,7 +222,7 @@ const ExpensesPage = () => {
                 </button>
             </div>
         <div className='bg-white rounded-xl shadow p-4 overflow-x-auto'>
-            <div className='grid grid-cols-5 gap-4
+            <div className='grid grid-cols-1 sm:grid-cols-5 gap-4
             text-sm text-gray-500 font-medium
             pb-3 border-b'>
                 <span>Category</span>
@@ -233,20 +233,34 @@ const ExpensesPage = () => {
             </div>
             {
             filteredExpenseList.length === 0 ? <h2 className='text-center py-10 text-gray-400'>No Expenses added yet</h2> :
-            filteredExpenseList.map((row)=>{
-            return <div key={row.id} className='grid grid-cols-5 gap-4 items-center
-            py-3 border-b last:border-none
-            text-sm'>
-                
-                    <span>{row.category}</span>
-                    <span>{row.description}</span>
-                    <span>{row.date}</span>
-                    <span className='font-semibold text-red-600'>₹{Number(row.amount).toLocaleString('en-IN')}</span>
-                    <span className='flex gap-3'>
-                        <button className='text-blue-600 hover:underline' onClick={() => editExpenseForm(row.id)}>Edit</button> | 
-                        <button className='text-red-600 hover:underline' onClick={() => deleteExpense(row.id)}>Delete</button>
-                    </span>
-            </div>})}
+                        filteredExpenseList.map((row)=>{
+                        return <div key={row.id} className='grid grid-cols-1 sm:grid-cols-5 gap-4 items-start
+                        py-3 border-b last:border-none
+                        text-sm'>
+                                        <div>
+                                            <div className='text-xs text-gray-400 sm:hidden'>Category</div>
+                                            <div className='break-words'>{row.category}</div>
+                                        </div>
+                                        <div>
+                                            <div className='text-xs text-gray-400 sm:hidden'>Description</div>
+                                            <div className='break-words'>{row.description}</div>
+                                        </div>
+                                        <div>
+                                            <div className='text-xs text-gray-400 sm:hidden'>Date</div>
+                                            <div className='text-sm text-gray-600'>{row.date}</div>
+                                        </div>
+                                        <div>
+                                            <div className='text-xs text-gray-400 sm:hidden'>Amount</div>
+                                            <div className='font-semibold text-red-600'>₹{Number(row.amount).toLocaleString('en-IN')}</div>
+                                        </div>
+                                        <div className='flex gap-3 items-center'>
+                                            <div className='text-xs text-gray-400 sm:hidden'>Actions</div>
+                                            <div className='flex gap-3'>
+                                                <button className='text-blue-600 hover:underline' onClick={() => editExpenseForm(row.id)}>Edit</button>
+                                                <button className='text-red-600 hover:underline' onClick={() => deleteExpense(row.id)}>Delete</button>
+                                            </div>
+                                        </div>
+                        </div>})}
             
         </div>
         {isModalOpen && <ExpenseModal form={form} onAddExpense={onAddExpense} onCancelButton={onCancelButton} handleExpenseForm={handleExpenseForm} modal={'Add'}/> }

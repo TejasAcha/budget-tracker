@@ -120,11 +120,8 @@ const Dashboard = () => {
                 <p className='text-2xl font-bold'>{balance}</p>
             </div>
         </div>
-        <div className='bg-white rounded-xl shadow p-6 mb-6 min-h-[35vh]
-            grid grid-cols-1 lg:grid-cols-2 gap-6
-            '>
-                
-                <div className="bg-white p-6 rounded-xl shadow h-80">
+        <div className='mb-6 grid grid-cols-1 lg:grid-cols-2 gap-4'>
+            <div className="bg-white p-4 sm:p-6 rounded-xl shadow h-64 sm:h-80">
                 {/* <div className="bg-white rounded-xl shadow p-6"> */}
                 <h2 className="text-lg font-semibold mb-4 text-gray-400">Expenses by Category</h2>
                 <div className="h-56">
@@ -151,7 +148,7 @@ const Dashboard = () => {
                 </ResponsiveContainer>
                 </div>
                 </div>
-                <div className="bg-white p-6 rounded-xl shadow h-80">
+                <div className="bg-white p-4 sm:p-6 rounded-xl shadow h-64 sm:h-80">
                 <h2 className="text-lg font-semibold mb-4 text-gray-400">Expenses by Date</h2>
                 <ResponsiveContainer width="100%" height="100%">
                     {lineChartData.length === 0 ? <h2 className='text-center py-10 text-gray-400'>No Data to display</h2> :
@@ -173,23 +170,29 @@ const Dashboard = () => {
             shadow
             p-6'>
                 <h2 className='text-lg font-semibold mb-4'>Recent Transaction</h2>
-                <div className='space-y-3'>
-                    <div className = 'grid grid-cols-3 gap-4 text-sm'>
+                    <div className='space-y-3'>
+                    <div className = 'grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm'>
                         <span>Category</span>
                         <span>Amount</span>
                         <span>Date</span>
                     </div>
                     {recentTransactions.length === 0 ? <h2 className='text-center py-10 text-gray-400'>No Recent Transactions</h2> :
-                    recentTransactions.map((row)=>{
-                        return <div key={row.id} className='grid grid-cols-3 gap-4
-                        text-sm'>
-                            
-                                <span>{row.category}</span>
-                                <span className='font-semibold text-red-600'>{row.amount}</span>
-                                <span>{row.date}</span>
-                                
-                        </div>
-                    })
+                                        recentTransactions.map((row)=>{
+                                                return <div key={row.id} className='grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm py-3 border-b last:border-none'>
+                                                                <div>
+                                                                    <div className='text-xs text-gray-400 sm:hidden'>Category</div>
+                                                                    <div className='break-words'>{row.category}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className='text-xs text-gray-400 sm:hidden'>Amount</div>
+                                                                    <div className='font-semibold text-red-600'>{row.amount}</div>
+                                                                </div>
+                                                                <div>
+                                                                    <div className='text-xs text-gray-400 sm:hidden'>Date</div>
+                                                                    <div className='text-sm text-gray-600'>{row.date}</div>
+                                                                </div>
+                                                </div>
+                                        })
                     }
                     
                 </div>

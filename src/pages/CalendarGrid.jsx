@@ -27,7 +27,7 @@ const CalendarGrid = ({ year, month, expenseList, onDateClick }) => {
           days.push(
             <div
               key={dateStr}
-              className="border p-2 h-24 cursor-pointer hover:bg-blue-50 transition"
+              className="border p-2 h-20 sm:h-24 cursor-pointer hover:bg-blue-50 transition"
               onClick={() => onDateClick(dateStr)}
             >
               <div className={`font-semibold ${(currentDay === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear()) ? 'text-blue-600' : ''}`}>{currentDay}</div>
