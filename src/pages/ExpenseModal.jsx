@@ -27,11 +27,34 @@ const ExpenseModal = ({form, onAddExpense, onCancelButton, handleExpenseForm, mo
                     <select name="category" id="" className='border rounded-lg px-3 py-2
                     focus:ring focus:ring-blue-300
                     outline-none' onChange={handleExpenseForm} value={form.category}>
-                        <option value="All Catogories"> All Catogories</option>
+                        <option value=""> Select Catogories</option>
                         {EXPENSE_CATEGORIES.map((category)=>{
                             return <option value={category} key={category}>{category}</option>
                         })}
                     </select>
+                                        <div className='flex items-center gap-6'>
+  <label className='flex items-center gap-2'>
+    <input
+      type='radio'
+      name='type'
+      value='profit'
+      checked={form.type === 'profit'}
+      onChange={handleExpenseForm}
+    />
+    <span className='text-sm'>Profit</span>
+  </label>
+
+  <label className='flex items-center gap-2'>
+    <input
+      type='radio'
+      name='type'
+      value='expense'
+      checked={form.type === 'expense'}
+      onChange={handleExpenseForm}
+    />
+    <span className='text-sm'>Expense</span>
+  </label>
+</div>
                     <label className='text-sm font-medium text-gray-700'>Description</label>
                     <input type="text" className='border rounded-lg px-3 py-2
                     focus:ring focus:ring-blue-300

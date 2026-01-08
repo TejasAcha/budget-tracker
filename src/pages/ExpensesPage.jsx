@@ -24,7 +24,8 @@ const ExpensesPage = () => {
         amount: '',
         category: '',
         description:'',
-        date:''
+        date:'',
+        type: 'expense'
     })
     // const [expenseList, setExpenseList] = useState([]);
     const { expenseList, setExpenseList } = useOutletContext();
@@ -33,6 +34,7 @@ const ExpensesPage = () => {
         category: '',
         description:'',
         date:'',
+        type: 'expense',
         id:null
     })
     
@@ -71,12 +73,16 @@ const ExpensesPage = () => {
     const onAddExpense = () => {
         
         if (form.amount !== '' && form.category!=='' && form.date!=='' && form.description!=='') {
-            const newExpenseObject = {...form, id: uuidv4()}
+            // ensure signed amount based on type
+            const raw = Number(form.amount)
+            const signedAmount = form.type === 'profit' ? Math.abs(raw) : -Math.abs(raw)
+            const newExpenseObject = {...form, amount: signedAmount, id: uuidv4()}
             setExpenseList(prevList => [...prevList, newExpenseObject]);
             setForm({amount: '',
             category: '',
             description:'',
-            date:''})
+            date:'',
+            type: 'expense'})
             setIsModalOpen(false)
         }
         else{
@@ -94,15 +100,21 @@ const ExpensesPage = () => {
     const editExpenseForm = (id) => {
         const editRow = expenseList.find(row=>row.id === id)
         setIsEditMode(true)
-        setEditForm(editRow)
+        // ensure edit form has a type
+        const inferredType = editRow && Number(editRow.amount) >= 0 ? 'profit' : 'expense'
+        setEditForm({...editRow, type: editRow.type || inferredType})
     }
 
     const onEditExpense = (form) => {
         setExpenseList(prevList => prevList.map((row) => {
             if(row.id === form.id){
+                // ensure signed amount based on type
+                const raw = Number(form.amount)
+                const signedAmount = form.type === 'profit' ? Math.abs(raw) : -Math.abs(raw)
                 return {
                     ...row,
-                    amount: form.amount,
+                    amount: signedAmount,
+                    type: form.type,
                     category: form.category,
                     description: form.description,
                     date: form.date,
@@ -116,6 +128,7 @@ const ExpensesPage = () => {
             category: '',
             description:'',
             date:'',
+            type: 'expense',
             id:null
         })
         setIsEditMode(false)
@@ -236,7 +249,7 @@ const ExpensesPage = () => {
                         filteredExpenseList.map((row)=>{
                         return <div key={row.id} className='grid grid-cols-1 sm:grid-cols-5 gap-4 items-start
                         py-3 border-b last:border-none
-                        text-sm'>
+                        text-sm min-w-0'>
                                         <div>
                                             <div className='text-xs text-gray-400 sm:hidden'>Category</div>
                                             <div className='break-words'>{row.category}</div>
@@ -251,7 +264,13 @@ const ExpensesPage = () => {
                                         </div>
                                         <div>
                                             <div className='text-xs text-gray-400 sm:hidden'>Amount</div>
-                                            <div className='font-semibold text-red-600'>₹{Number(row.amount).toLocaleString('en-IN')}</div>
+                                            {(() => {
+                                                const amt = Number(row.amount)
+                                                const isProfit = amt >= 0
+                                                const cls = isProfit ? 'font-semibold text-green-600' : 'font-semibold text-red-600'
+                                                const display = `${isProfit ? '' : '-'}₹${Math.abs(amt).toLocaleString('en-IN')}`
+                                                  return <span className={`${cls} text-sm sm:text-base truncate block max-w-[120px] sm:max-w-none`}>{display}</span>
+                                            })()}
                                         </div>
                                         <div className='flex gap-3 items-center'>
                                             <div className='text-xs text-gray-400 sm:hidden'>Actions</div>

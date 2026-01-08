@@ -21,28 +21,31 @@ const CalendarGrid = ({ year, month, expenseList, onDateClick }) => {
     for (let week = 0; week < 6; week++) {
       const days = [];
       for (let day = 0; day < 7; day++) {
-        if (currentDay > 0 && currentDay <= daysInMonth) {
-          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(currentDay).padStart(2, '0')}`;
-          const dayExpenses = expensesByDate[dateStr] || [];
-          days.push(
-            <div
-              key={dateStr}
-              className="border p-2 h-20 sm:h-24 cursor-pointer hover:bg-blue-50 transition"
-              onClick={() => onDateClick(dateStr)}
-            >
-              <div className={`font-semibold ${(currentDay === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear()) ? 'text-blue-600' : ''}`}>{currentDay}</div>
-              <div className="text-xs mt-1">
-                {dayExpenses.slice(0, 2).map((exp, idx) => (
-                  <div key={idx} className="bg-blue-100 text-blue-800 rounded px-1 mb-1">
-
-                    {exp.description}: ₹{Number(exp.amount).toLocaleString('en-IN')}
-
+            if (currentDay > 0 && currentDay <= daysInMonth) {
+              const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(currentDay).padStart(2, '0')}`;
+              const dayExpenses = expensesByDate[dateStr] || [];
+              days.push(
+                <div
+                  key={dateStr}
+                  className="border p-2 h-20 sm:h-24 cursor-pointer hover:bg-blue-50 transition relative flex flex-col"
+                  onClick={() => onDateClick(dateStr)}
+                >
+                  <div className={`absolute top-1 right-1 text-xs ${currentDay === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear() ? 'text-blue-600' : ''}`}>{currentDay}</div>
+                  <div className="mt-5 overflow-hidden">
+                    {dayExpenses.slice(0, 2).map((exp, idx) => {
+                      const amt = Number(exp.amount)
+                      const display = `${amt < 0 ? '-' : ''}₹${Math.abs(amt).toLocaleString('en-IN')}`
+                      return (
+                        <div key={idx} className="bg-blue-100 text-blue-800 rounded px-1 py-0.5 mb-1 text-xs truncate">
+                          <span className='font-medium truncate block max-w-full'>{exp.description}:</span>
+                          <span className='truncate block max-w-full'>{display}</span>
+                        </div>
+                      )
+                    })}
+                    {dayExpenses.length > 2 && <div className="text-xs text-gray-500">+{dayExpenses.length - 2}</div>}
                   </div>
-                ))}
-                {dayExpenses.length > 2 && <div className="text-xs">+{dayExpenses.length - 2}</div>}
-              </div>
-            </div>
-          );
+                </div>
+              );
         } else {
           days.push(<div key={day} className="border p-2 h-24 bg-gray-100"></div>);
         }
